@@ -67,13 +67,9 @@
 #define REG_Pixel_Burst                          0x64
 
 byte initComplete=0;
-unsigned long currTime;
-unsigned long timer;
 volatile byte xydat[4];
 int16_t * x = (int16_t *) &xydat[0];
 int16_t * y = (int16_t *) &xydat[2];
-
-#define FS 100000 // Frame size in microseconds
 
 volatile byte movementflag=0;
 const int ncs = 10;
@@ -83,9 +79,9 @@ extern const unsigned char firmware_data[];
 
 void setup() {
   // choose your baud rate
-  //Serial.begin(9600);
+  Serial.begin(9600);
   //Serial.begin(57600); 
-  Serial.begin(38400); 
+  //Serial.begin(38400); 
   while (!Serial);
   
   pinMode(ncs, OUTPUT);
@@ -183,8 +179,8 @@ void performStartup(void){
   // upload the firmware
   adns_upload_firmware();
   delay(10);
- adns_write_reg(REG_Configuration_I, 0x01); // 200 cpi
- adns_write_reg(REG_Configuration_I, 0xa4); // highest cpi
+  adns_write_reg(REG_Configuration_I, 0x01); // 200 cpi
+  //adns_write_reg(REG_Configuration_I, 0xa4); // 8200 cpi
   delay(10);
 
   //enable laser(bit 0 = 0b), in normal mode (bits 3,2,1 = 000b)
@@ -194,16 +190,10 @@ void performStartup(void){
   
   byte laser_ctrl0 = adns_read_reg(REG_LASER_CTRL0);
   adns_write_reg(REG_LASER_CTRL0, laser_ctrl0 & 0xf0 );
-  // turn off the laser to limit the light going into the sensor
-  
   delay(1);
-
-  //Serial.println("Optical Chip Initialized");
-  
 }
 
 void frameCapture(){
-
   //Serial.println("Capturing frame: "); 
 
   // send instructions to the adns to capture a frame. 
@@ -272,9 +262,9 @@ void UpdatePointer(void){
     xydat[3] = (byte)adns_read_reg(REG_Delta_Y_H);
     digitalWrite(ncs,HIGH); 
     
-    //Serial.println(String(float(*x)/200*2.54/(FS*1e-6))+" "+String(float(*y)/200*2.54/(FS*1e-6)));
     xdir = xdir + *x; 
     ydir = ydir + *y; 
+    
     /*
     Serial.print("X: ");
     Serial.print((float)xdir / 200 * 25.4 );
@@ -290,7 +280,6 @@ void UpdatePointer(void){
     }
   }
   
-  long frame = 0;
   int numCaptured = 0; 
 
   void loop() {
