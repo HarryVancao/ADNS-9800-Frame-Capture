@@ -285,7 +285,8 @@ void UpdatePointer(void){
   void loop() {
       if(numCaptured < 100){
         frameCapture();
-        Serial.println(";  ");  // delimiter indicating the end of a frame (has two spaces).         
+        Serial.println(";  ");  // delimiter indicating the end of a frame (has two spaces). 
+        //numCaptured = numCaptured + 1; 
       }
   }
   
